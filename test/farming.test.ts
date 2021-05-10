@@ -163,6 +163,9 @@ contract('Halving Release', async accounts => {
             console.log('BUSD balance: ' + new BigNumber(await busd.balanceOf(accounts[0])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
             console.log('accounts[1]\'s BUSD balance: ' + new BigNumber(await busd.balanceOf(accounts[1])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
             console.log('dev\'s BUSD balance: ' + new BigNumber(await busd.balanceOf('0xB0d88027F5dEd975fF6Df7A62952033D67Df277f')).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
+            let totalQuantity = new BigNumber(await payment.totalQuantity());
+            let userInfo = await payment.userInfo(accounts[0]);
+            console.log('Quantity: ' + new BigNumber(userInfo[0]).toFixed(0) + ' / ' + totalQuantity.toFixed(0));
             console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward()).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
         });
 
@@ -178,6 +181,9 @@ contract('Halving Release', async accounts => {
             console.log('USDT balance: ' + new BigNumber(await usdt.balanceOf(accounts[0])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
             console.log('accounts[2]\'s USDC balance: ' + new BigNumber(await usdc.balanceOf(accounts[1])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
             console.log('dev\'s USDC balance: ' + new BigNumber(await usdc.balanceOf('0xB0d88027F5dEd975fF6Df7A62952033D67Df277f')).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
+            let totalQuantity = new BigNumber(await payment.totalQuantity());
+            let userInfo = await payment.userInfo(accounts[0]);
+            console.log('Quantity: ' + new BigNumber(userInfo[0]).toFixed(0) + ' / ' + totalQuantity.toFixed(0));
             console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward()).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
         });
         it('Withdraw BST from payment', async () => {

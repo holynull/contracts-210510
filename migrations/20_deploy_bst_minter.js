@@ -6,7 +6,7 @@ module.exports = function (deployer, network, accounts) {
     let dev = config.dev;
     let dDay = new Date();
     dDay.setFullYear(config.dDay[0], config.dDay[1], config.dDay[2]);
-    dDay.setHours(11, 30, 0, 0);
+    dDay.setHours(14, 16, 0, 0);
     let now = new Date();
     let blocks = Math.floor((Math.floor(dDay.getTime() / 1000) - Math.floor(now.getTime() / 1000)) / 3);
     return web3.eth.getBlock('latest').then(latestBlock => {

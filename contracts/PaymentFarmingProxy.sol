@@ -154,7 +154,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         UserInfo storage user = userInfo[msg.sender];
         user.quantity = user.quantity.add(receiptAmt);
         userInfo[msg.sender].blockNumber = block.number;
-        totalQuantity = totalQuantity.add(user.quantity);
+        totalQuantity = totalQuantity.add(receiptAmt);
         emit Pay(payToken, receiptToken, msg.sender, receipt);
     }
 
