@@ -5,14 +5,12 @@ const data = require('./conf');
 module.exports = function (deployer, network, accounts) {
     let config = data[deployer.network_id];
     TokenUSDT.deployed().then(usdt => {
-        let usdtAddress;
-        if (usdt) {
-            usdtAddress = usdt.address;
-        } else {
-            usdtAddress = config.usdt;
-        }
         return PaymentFarmingProxy.deployed().then(payment => {
-            return payment.addCoins(usdtAddress, 2);
+            return payment.addCoins(usdt.address, 2);
+        });
+    }).catch(e => {
+        return PaymentFarmingProxy.deployed().then(payment => {
+            return payment.addCoins(config.usdt, 2);
         });
     });
 };

@@ -119,14 +119,14 @@ module.exports = {
             // gasPrice: 1800000000
         },
         bsctestnet: {
-            provider: () => new HDWalletProvider(mnemonic, "https://data-seed-prebsc-1-s2.binance.org:8545/"),
+            provider: () => new HDWalletProvider(mnemonic, "https://data-seed-prebsc-2-s2.binance.org:8545/"),
             network_id: 97,
             chain_id: 97,
-            gas: 30000000,
+            // gas: 30000000,
             // confirmations: 2,
             // timeoutBlocks: 2000,
             // skipDryRun: true,
-            // gasPrice: 1800000000
+            // gasPrice: 20000000000 // 20 gwei
         },
         heco_test: {
             provider: () => new HDWalletProvider(mnemonic, "https://http-testnet.hecochain.com"),
