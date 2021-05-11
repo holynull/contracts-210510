@@ -5,14 +5,12 @@ const data = require('./conf');
 module.exports = function (deployer, network, accounts) {
     let config = data[deployer.network_id];
     return BStablePool2.deployed().then(pool2 => {
-        let pool2Address;
-        if (pool2) {
-            pool2Address = pool2.address;
-        } else {
-            pool2Address = config.pool2;
-        }
         return LiquidityFarmingProxy.deployed().then(proxy => {
-            return proxy.add(5, pool2Address, false);
+            return proxy.add(5, pool2.address, false);
+        });
+    }).catch(e => {
+        return LiquidityFarmingProxy.deployed().then(proxy => {
+            return proxy.add(5, config.pool2, false);
         });
     });
 

@@ -1,0 +1,1 @@
+truffle migrate --f=10 --to=200 --network=bsctestnet

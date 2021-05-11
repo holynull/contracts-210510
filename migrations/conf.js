@@ -19,8 +19,8 @@ module.exports = {
             '0xA04c97c1c00300CcfA230a1D1b4E8Dc241861A3e',
             '0x76EFD6e0A9322a7b9dCA70a1972453814A5687c4'
         ],
-        dDay: [2021, 4, 10],
-        hours: [15, 56, 0, 0],
+        dDay: [2021, 4, 11],
+        hours: [10, 42, 0, 0],
         pool3: {
             name: "BStable Pool (USDC / BUSD / USDT)",
             symbol: "BSLP-03",
@@ -53,8 +53,8 @@ module.exports = {
             '0xA04c97c1c00300CcfA230a1D1b4E8Dc241861A3e',
             '0x76EFD6e0A9322a7b9dCA70a1972453814A5687c4'
         ],
-        dDay: [2021, 4, 9],
-        hours: [15, 19, 0, 0],
+        dDay: [2021, 4, 11],
+        hours: [16, 20, 0, 0],
         pool3: {
             name: "BStable Pool (USDC / BUSD / USDT)",
             symbol: "BSLP-03",
