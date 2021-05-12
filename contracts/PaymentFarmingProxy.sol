@@ -32,7 +32,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
 
     uint256 public totalQuantity;
 
-    IBSTToken token;
+    IBSTToken public token;
 
     struct CoinInfo {
         uint256 index;
@@ -176,9 +176,12 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     function getUserReward() public view returns (uint256) {
         UserInfo storage user = userInfo[msg.sender];
         uint256 _quantity = user.quantity;
-        require(user.quantity > 0, "Payment: no payment quantity.");
-        uint256 userReward =
-            token.balanceOf(address(this)).mul(_quantity).div(totalQuantity);
+        uint256 userReward = 0;
+        if (totalQuantity > 0) {
+            userReward = token.balanceOf(address(this)).mul(_quantity).div(
+                totalQuantity
+            );
+        }
         return userReward;
     }
 }
