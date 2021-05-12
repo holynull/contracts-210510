@@ -32,7 +32,7 @@ contract BSTMinter is Ownable {
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all proxys.
     uint256 public totalAllocPoint = 0;
     /// @notice The block number when BST mining starts.
-    uint256 startBlock;
+    uint256 public startBlock;
     /// @notice Halving Period in blocks.
     uint256 public halvingPeriod = 2_628_000;
     /// @notice Halving coefficient.
