@@ -19,7 +19,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
 
     uint256 public paymentFee = 3_000_000_000_000_000;
 
-    IBSTMinter bstMinter;
+    IBSTMinter public bstMinter;
 
     address public devAddress;
 

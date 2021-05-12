@@ -34,7 +34,7 @@ contract LiquidityFarmingProxy is Ownable {
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
     /// @notice For mint BST
-    IBSTMinter bstMinter;
+    IBSTMinter public bstMinter;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
