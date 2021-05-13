@@ -1551,7 +1551,7 @@ contract LiquidityFarmingProxy is Ownable {
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
     /// @notice For mint BST
-    IBSTMinter bstMinter;
+    IBSTMinter public bstMinter;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -1627,9 +1627,13 @@ contract LiquidityFarmingProxy is Ownable {
                 bstMinter.getReward(address(this)).mul(pool.allocPoint).div(
                     totalAllocPoint
                 ); // 0 is lp farming
-            accTokenPerShare = accTokenPerShare.add(
-                tokenReward.mul(1e12).div(lpSupply)
-            );
+            uint256 nAccTokenPerShare =
+                tokenReward == 0
+                    ? accTokenPerShare
+                    : tokenReward.mul(1e12).div(lpSupply);
+            accTokenPerShare = accTokenPerShare.add(nAccTokenPerShare);
+        } else {
+            accTokenPerShare = accTokenPerShare.add(accTokenPerShare);
         }
         return user.amount.mul(accTokenPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -1648,13 +1652,14 @@ contract LiquidityFarmingProxy is Ownable {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
+        uint256 tokenReward =
+            bstMinter.mint(address(this), pool.allocPoint, totalAllocPoint);
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
         }
-        uint256 tokenReward =
-            bstMinter.mint(address(this), pool.allocPoint, totalAllocPoint);
+
         pool.accTokenPerShare = pool.accTokenPerShare.add(
             tokenReward.mul(1e12).div(lpSupply)
         );
