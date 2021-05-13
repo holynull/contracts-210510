@@ -1245,7 +1245,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
 
     uint256 public paymentFee = 3_000_000_000_000_000;
 
-    IBSTMinter bstMinter;
+    IBSTMinter public bstMinter;
 
     address public devAddress;
 
@@ -1258,7 +1258,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
 
     uint256 public totalQuantity;
 
-    IBSTToken token;
+    IBSTToken public token;
 
     struct CoinInfo {
         uint256 index;
@@ -1380,7 +1380,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         UserInfo storage user = userInfo[msg.sender];
         user.quantity = user.quantity.add(receiptAmt);
         userInfo[msg.sender].blockNumber = block.number;
-        totalQuantity = totalQuantity.add(user.quantity);
+        totalQuantity = totalQuantity.add(receiptAmt);
         emit Pay(payToken, receiptToken, msg.sender, receipt);
     }
 
@@ -1399,12 +1399,15 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     }
 
     /// @notice Get rewards from users in the current pool
-    function getUserReward() public view returns (uint256) {
-        UserInfo storage user = userInfo[msg.sender];
+    function getUserReward(address _user) public view returns (uint256) {
+        UserInfo storage user = userInfo[_user];
         uint256 _quantity = user.quantity;
-        require(user.quantity > 0, "Payment: no payment quantity.");
-        uint256 userReward =
-            token.balanceOf(address(this)).mul(_quantity).div(totalQuantity);
+        uint256 userReward = 0;
+        if (totalQuantity > 0) {
+            userReward = token.balanceOf(address(this)).mul(_quantity).div(
+                totalQuantity
+            );
+        }
         return userReward;
     }
 }

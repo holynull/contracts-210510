@@ -173,8 +173,8 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     }
 
     /// @notice Get rewards from users in the current pool
-    function getUserReward() public view returns (uint256) {
-        UserInfo storage user = userInfo[msg.sender];
+    function getUserReward(address _user) public view returns (uint256) {
+        UserInfo storage user = userInfo[_user];
         uint256 _quantity = user.quantity;
         uint256 userReward = 0;
         if (totalQuantity > 0) {

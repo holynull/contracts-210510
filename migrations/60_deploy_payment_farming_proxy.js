@@ -10,6 +10,7 @@ module.exports = function (deployer, network, accounts) {
         console.log('constructor[0]:' + name);
         console.log('constructor[1]:' + symbol);
         console.log('constructor[2]:' + accounts[0]);
+        console.log('constructor[3]:' + dev);
     });
 
 };
