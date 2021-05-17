@@ -52,12 +52,17 @@ contract BSTMinter is Ownable {
         uint256 _startBlock,
         address ownerAddress
     ) public {
+        require(
+            _devaddr != address(0),
+            "BSTMinter: dev address can't be 0 address"
+        );
         devaddr = _devaddr;
         startBlock = _startBlock;
         transferOwnership(ownerAddress);
     }
 
     function setToken(IBSTToken _token) public onlyOwner {
+        require(address(_token) != address(0), "BSTMinter: no 0 address");
         bstToken = _token;
         emit UpdateToken(address(_token));
     }
@@ -76,6 +81,7 @@ contract BSTMinter is Ownable {
         address _farmingProxy,
         bool _withUpdate
     ) public onlyOwner {
+        require(_farmingProxy != address(0), "BSTMinter: no 0 address");
         if (_withUpdate) {
             massMint();
         }
@@ -100,6 +106,7 @@ contract BSTMinter is Ownable {
         uint256 _allocPoint,
         bool _withUpdate
     ) public onlyOwner {
+        require(_proxyAddress != address(0), "BSTMinter: no 0 address");
         if (_withUpdate) {
             massMint();
         }
@@ -199,6 +206,10 @@ contract BSTMinter is Ownable {
 
     /// @notice Update dev address by the previous dev.
     function dev(address _devaddr) public onlyOwner {
+        require(
+            _devaddr != address(0),
+            "BSTMinter: dev address can't be 0 address"
+        );
         devaddr = _devaddr;
         emit SetDevAddress(_devaddr);
     }

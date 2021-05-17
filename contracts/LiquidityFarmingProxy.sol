@@ -57,12 +57,21 @@ contract LiquidityFarmingProxy is Ownable {
         uint256 rewardDebt,
         uint256 accTokenPerShare
     );
+    event SetToken(address _token);
 
     constructor(address ownerAddress) public {
+        require(
+            ownerAddress != address(0),
+            "LiquidityFarmingProxy: no 0 address"
+        );
         transferOwnership(ownerAddress);
     }
 
     function setMinter(IBSTMinter _minter) public onlyOwner {
+        require(
+            address(_minter) != address(0),
+            "LiquidityFarmingProxy: no 0 address"
+        );
         bstMinter = _minter;
         emit SetMinter(address(_minter));
     }
@@ -77,6 +86,10 @@ contract LiquidityFarmingProxy is Ownable {
         IBEP20 _lpToken,
         bool _withUpdate
     ) public onlyOwner {
+        require(
+            address(_lpToken) != address(0),
+            "LiquidityFarmingProxy: no 0 address"
+        );
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -230,6 +243,7 @@ contract LiquidityFarmingProxy is Ownable {
 
     /// @notice Safe token transfer function, just in case if rounding error causes pool to not have enough BSTs.
     function safeTokenTransfer(address _to, uint256 _amount) internal {
+        require(_to != address(0), "LiquidityFarmingProxy: no 0 address");
         uint256 tokenBal = token.balanceOf(address(this));
         if (_amount > tokenBal) {
             token.transfer(_to, tokenBal);
@@ -239,7 +253,12 @@ contract LiquidityFarmingProxy is Ownable {
     }
 
     function setToken(IBSTToken _token) external onlyOwner {
+        require(
+            address(_token) != address(0),
+            "LiquidityFarmingProxy: no 0 address"
+        );
         token = _token;
+        emit SetToken(address(_token));
     }
 
     function getTokenAddress() external view returns (address) {

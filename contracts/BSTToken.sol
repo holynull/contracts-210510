@@ -28,10 +28,12 @@ contract BSTToken is DelegateBEP20, Ownable {
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner .
     function mint(address _to, uint256 _amount) public {
         require(msg.sender == minter, "BSTToken:only minter.");
+        require(_to != address(0), "BSTToken: no 0 address");
         _mint(_to, _amount);
     }
 
     function transferMinterTo(address to) public onlyOwner {
+        require(to != address(0), "BSTToken: no 0 address");
         minter = to;
     }
 }
