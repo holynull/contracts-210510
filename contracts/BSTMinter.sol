@@ -38,6 +38,15 @@ contract BSTMinter is Ownable {
     /// @notice Halving coefficient.
     uint256 public HALVING_COEFFICIENT = 1_189_207_115_002_721_024;
 
+    event UpdateProxyInfo(
+        address _farmingProxy,
+        uint256 _allocPoint,
+        uint256 _totalAllocPoint
+    );
+    event UpdateToken(address _tokenAddress);
+    event SetHalvingPeriod(uint256 _block);
+    event SetDevAddress(address _dev);
+
     constructor(
         address _devaddr,
         uint256 _startBlock,
@@ -50,10 +59,12 @@ contract BSTMinter is Ownable {
 
     function setToken(IBSTToken _token) public onlyOwner {
         bstToken = _token;
+        emit UpdateToken(address(_token));
     }
 
     function setHalvingPeriod(uint256 _block) public onlyOwner {
         halvingPeriod = _block;
+        emit SetHalvingPeriod(_block);
     }
 
     /// @notice Add a new proxy. Can only be called by the owner.
@@ -77,6 +88,7 @@ contract BSTMinter is Ownable {
         pInfo.lastRewardBlock = lastRewardBlock;
         proxyInfo[_farmingProxy] = pInfo;
         proxyAddresses.push(_farmingProxy);
+        emit UpdateProxyInfo(_farmingProxy, _allocPoint, totalAllocPoint);
     }
 
     /// @notice Update the given proxy's BST allocation point. Can only be called by the owner.
@@ -95,6 +107,7 @@ contract BSTMinter is Ownable {
             .sub(proxyInfo[_proxyAddress].allocPoint)
             .add(_allocPoint);
         proxyInfo[_proxyAddress].allocPoint = _allocPoint;
+        emit UpdateProxyInfo(_proxyAddress, _allocPoint, totalAllocPoint);
     }
 
     function _phase(uint256 blockNumber) internal view returns (uint256) {
@@ -187,6 +200,7 @@ contract BSTMinter is Ownable {
     /// @notice Update dev address by the previous dev.
     function dev(address _devaddr) public onlyOwner {
         devaddr = _devaddr;
+        emit SetDevAddress(_devaddr);
     }
 
     function getTokenAddress() external view returns (address) {

@@ -47,6 +47,12 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         address recipt
     );
 
+    event WithdrawReward(
+        uint256 _quantity,
+        uint256 _totalQuantity,
+        uint256 _userReward
+    );
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -162,14 +168,16 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     function withdrawReward() public {
         UserInfo storage user = userInfo[msg.sender];
         uint256 _quantity = user.quantity;
+        uint256 _totalQuantity = totalQuantity;
         require(user.quantity > 0, "Payment: no payment quantity.");
         bstMinter.mint(address(this), 1, 1);
         uint256 userReward =
-            token.balanceOf(address(this)).mul(_quantity).div(totalQuantity);
+            token.balanceOf(address(this)).mul(_quantity).div(_totalQuantity);
         user.quantity = 0;
         user.blockNumber = block.number;
         TransferHelper.safeTransfer(address(token), msg.sender, userReward);
         totalQuantity = totalQuantity.sub(_quantity);
+        emit WithdrawReward(_quantity, _totalQuantity, userReward);
     }
 
     /// @notice Get rewards from users in the current pool

@@ -43,6 +43,20 @@ contract LiquidityFarmingProxy is Ownable {
         uint256 indexed pid,
         uint256 amount
     );
+    event SetMinter(address _minter);
+    event AddPool(address _poolAddress, uint256 _allocPoint);
+    event SetPool(uint256 _pid, uint256 _allocPoint);
+    event UpdatePool(
+        uint256 _pid,
+        uint256 accTokenPerShare,
+        uint256 _tokenReward
+    );
+    event CalculatePending(
+        uint256 _pid,
+        uint256 _amount,
+        uint256 rewardDebt,
+        uint256 accTokenPerShare
+    );
 
     constructor(address ownerAddress) public {
         transferOwnership(ownerAddress);
@@ -50,6 +64,7 @@ contract LiquidityFarmingProxy is Ownable {
 
     function setMinter(IBSTMinter _minter) public onlyOwner {
         bstMinter = _minter;
+        emit SetMinter(address(_minter));
     }
 
     function poolLength() external view returns (uint256) {
@@ -78,6 +93,7 @@ contract LiquidityFarmingProxy is Ownable {
                 accTokenPerShare: 0
             })
         );
+        emit AddPool(address(_lpToken), _allocPoint);
     }
 
     /// @notice Update the given pool's BST allocation point. Can only be called by the owner.
@@ -93,6 +109,7 @@ contract LiquidityFarmingProxy is Ownable {
             _allocPoint
         );
         poolInfo[_pid].allocPoint = _allocPoint;
+        emit SetPool(_pid, _allocPoint);
     }
 
     /// @notice View function to see pending BSTs on frontend.
@@ -147,6 +164,7 @@ contract LiquidityFarmingProxy is Ownable {
             tokenReward.mul(1e12).div(lpSupply)
         );
         pool.lastRewardBlock = block.number;
+        emit UpdatePool(_pid, pool.accTokenPerShare, tokenReward);
     }
 
     /// @notice Deposit LP tokens to BStableProxyV2 for BST allocation.
@@ -159,6 +177,12 @@ contract LiquidityFarmingProxy is Ownable {
                 user.amount.mul(pool.accTokenPerShare).div(1e12).sub(
                     user.rewardDebt
                 );
+            emit CalculatePending(
+                _pid,
+                user.amount,
+                user.rewardDebt,
+                pool.accTokenPerShare
+            );
             safeTokenTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransferFrom(
@@ -181,6 +205,12 @@ contract LiquidityFarmingProxy is Ownable {
             user.amount.mul(pool.accTokenPerShare).div(1e12).sub(
                 user.rewardDebt
             );
+        emit CalculatePending(
+            _pid,
+            user.amount,
+            user.rewardDebt,
+            pool.accTokenPerShare
+        );
         safeTokenTransfer(msg.sender, pending);
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e12);
