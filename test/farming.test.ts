@@ -227,7 +227,7 @@ contract('Halving Release', async accounts => {
             let totalQuantity = new BigNumber(await payment.totalQuantity());
             let userInfo = await payment.userInfo(accounts[0]);
             console.log('Quantity: ' + new BigNumber(userInfo[0]).toFixed(0) + ' / ' + totalQuantity.toFixed(0));
-            console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward()).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
+            console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward(accounts[0])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
         });
 
         it('Pay with swap', async () => {
@@ -248,7 +248,7 @@ contract('Halving Release', async accounts => {
             let totalQuantity = new BigNumber(await payment.totalQuantity());
             let userInfo = await payment.userInfo(accounts[0]);
             console.log('Quantity: ' + new BigNumber(userInfo[0]).toFixed(0) + ' / ' + totalQuantity.toFixed(0));
-            console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward()).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
+            console.log("Payment BST pending: " + new BigNumber(await payment.getUserReward(accounts[0])).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
         });
         it('Withdraw BST from payment', async () => {
             console.log('Liquidity Minted BST: ' + new BigNumber(await bst.balanceOf(liquidity.address)).div(denominator).toFormat(18, BigNumber.ROUND_DOWN));
