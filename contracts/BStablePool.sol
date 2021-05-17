@@ -105,6 +105,13 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
     );
 
     event StopRampA(uint256 A, uint256 t);
+    event UnkillMe();
+    event KillMe();
+    event DonateAdminFees();
+    event WithdrawAdminFees();
+    event RevertTransferOwnership();
+    event RevertNewParameters();
+    
 
     constructor(
         string memory _name,
@@ -852,10 +859,12 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
 
     function revert_new_parameters() external onlyOwner {
         admin_actions_deadline = 0;
+        emit RevertNewParameters();
     }
 
     function revert_transfer_ownership() external onlyOwner {
         transfer_ownership_deadline = 0;
+        emit RevertTransferOwnership();
     }
 
     function admin_balances(uint256 i) external view returns (uint256 balance) {
@@ -870,12 +879,14 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
                 TransferHelper.safeTransfer(c, msg.sender, value);
             }
         }
+        emit WithdrawAdminFees();
     }
 
     function donate_admin_fees() external onlyOwner {
         for (uint256 i = 0; i < coins.length; i++) {
             balances[i] = IBEP20(coins[i]).balanceOf(address(this));
         }
+        emit DonateAdminFees();
     }
 
     function kill_me() external onlyOwner {
@@ -884,9 +895,11 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
             "  # dev: deadline has passed"
         );
         is_killed = true;
+        emit KillMe();
     }
 
     function unkill_me() external onlyOwner {
         is_killed = false;
+        emit UnkillMe();
     }
 }
