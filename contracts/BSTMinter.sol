@@ -71,11 +71,11 @@ contract BSTMinter is Ownable {
         uint256 lastRewardBlock =
             block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
-        proxyInfo[_farmingProxy] = ProxyInfo({
-            farmingProxy: _farmingProxy,
-            allocPoint: _allocPoint,
-            lastRewardBlock: lastRewardBlock
-        });
+        ProxyInfo memory pInfo = proxyInfo[_farmingProxy];
+        pInfo.farmingProxy = _farmingProxy;
+        pInfo.allocPoint = _allocPoint;
+        pInfo.lastRewardBlock = lastRewardBlock;
+        proxyInfo[_farmingProxy] = pInfo;
         proxyAddresses.push(_farmingProxy);
     }
 
