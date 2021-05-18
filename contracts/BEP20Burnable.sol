@@ -10,6 +10,11 @@ import "./BEP20.sol";
  * recognized off-chain (via event analysis).
  */
 abstract contract BEP20Burnable is BEP20 {
+    constructor(string memory _name, string memory _symbol)
+        public
+        BEP20(_name, _symbol)
+    {}
+
     /**
      * @dev Destroys `amount` tokens from the caller.
      *
@@ -31,7 +36,11 @@ abstract contract BEP20Burnable is BEP20 {
      * `amount`.
      */
     function burnFrom(address account, uint256 amount) public virtual {
-        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "BEP20: burn amount exceeds allowance");
+        uint256 decreasedAllowance =
+            allowance(account, _msgSender()).sub(
+                amount,
+                "BEP20: burn amount exceeds allowance"
+            );
 
         _approve(account, _msgSender(), decreasedAllowance);
         _burn(account, amount);

@@ -15,7 +15,7 @@ contract BSTToken is DelegateBEP20, Ownable {
         address owner,
         address minter_,
         address[] memory investors
-    ) public BEP20("BStable Token", "BST") {
+    ) public DelegateBEP20("BStable Token", "BST") {
         require(investors.length == 10, "only have 10 investor address");
         require(owner != minter, "BSTToken: owner can't be minter.");
         transferOwnership(owner);
@@ -25,11 +25,10 @@ contract BSTToken is DelegateBEP20, Ownable {
         }
     }
 
-    /// @notice Creates `_amount` token to `_to`. 
+    /// @notice Creates `_amount` token to `_to`.
     function mint(address _to, uint256 _amount) public {
         require(msg.sender == minter, "BSTToken:only minter.");
         require(_to != address(0), "BSTToken: no 0 address");
         _mint(_to, _amount);
     }
-    
 }
