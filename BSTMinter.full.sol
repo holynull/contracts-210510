@@ -581,9 +581,6 @@ pragma solidity ^0.6.0;
 
 interface IBSTToken is IBEP20 {
     function mint(address to, uint256 amount) external;
-
-    function transferMinterTo(address _minter) external;
-
 }
 
 // File: @openzeppelin/contracts/utils/Context.sol
@@ -1366,6 +1363,7 @@ contract BSTToken is DelegateBEP20, Ownable {
         address[] memory investors
     ) public BEP20("BStable Token", "BST") {
         require(investors.length == 10, "only have 10 investor address");
+        require(owner != minter, "BSTToken: owner can't be minter.");
         transferOwnership(owner);
         minter = minter_;
         for (uint256 i = 0; i < 10; i++) {
@@ -1373,15 +1371,13 @@ contract BSTToken is DelegateBEP20, Ownable {
         }
     }
 
-    /// @notice Creates `_amount` token to `_to`. Must only be called by the owner .
+    /// @notice Creates `_amount` token to `_to`. 
     function mint(address _to, uint256 _amount) public {
         require(msg.sender == minter, "BSTToken:only minter.");
+        require(_to != address(0), "BSTToken: no 0 address");
         _mint(_to, _amount);
     }
-
-    function transferMinterTo(address to) public onlyOwner {
-        minter = to;
-    }
+    
 }
 
 // File: contracts/BSTMinter.sol
@@ -1419,28 +1415,44 @@ contract BSTMinter is Ownable {
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all proxys.
     uint256 public totalAllocPoint = 0;
     /// @notice The block number when BST mining starts.
-    uint256 startBlock;
+    uint256 public startBlock;
     /// @notice Halving Period in blocks.
     uint256 public halvingPeriod = 2_628_000;
     /// @notice Halving coefficient.
     uint256 public HALVING_COEFFICIENT = 1_189_207_115_002_721_024;
+
+    event UpdateProxyInfo(
+        address _farmingProxy,
+        uint256 _allocPoint,
+        uint256 _totalAllocPoint
+    );
+    event UpdateToken(address _tokenAddress);
+    event SetHalvingPeriod(uint256 _block);
+    event SetDevAddress(address _dev);
 
     constructor(
         address _devaddr,
         uint256 _startBlock,
         address ownerAddress
     ) public {
+        require(
+            _devaddr != address(0),
+            "BSTMinter: dev address can't be 0 address"
+        );
         devaddr = _devaddr;
         startBlock = _startBlock;
         transferOwnership(ownerAddress);
     }
 
     function setToken(IBSTToken _token) public onlyOwner {
+        require(address(_token) != address(0), "BSTMinter: no 0 address");
         bstToken = _token;
+        emit UpdateToken(address(_token));
     }
 
     function setHalvingPeriod(uint256 _block) public onlyOwner {
         halvingPeriod = _block;
+        emit SetHalvingPeriod(_block);
     }
 
     /// @notice Add a new proxy. Can only be called by the owner.
@@ -1452,18 +1464,20 @@ contract BSTMinter is Ownable {
         address _farmingProxy,
         bool _withUpdate
     ) public onlyOwner {
+        require(_farmingProxy != address(0), "BSTMinter: no 0 address");
         if (_withUpdate) {
             massMint();
         }
         uint256 lastRewardBlock =
             block.number > startBlock ? block.number : startBlock;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
-        proxyInfo[_farmingProxy] = ProxyInfo({
-            farmingProxy: _farmingProxy,
-            allocPoint: _allocPoint,
-            lastRewardBlock: lastRewardBlock
-        });
+        ProxyInfo memory pInfo = proxyInfo[_farmingProxy];
+        pInfo.farmingProxy = _farmingProxy;
+        pInfo.allocPoint = _allocPoint;
+        pInfo.lastRewardBlock = lastRewardBlock;
+        proxyInfo[_farmingProxy] = pInfo;
         proxyAddresses.push(_farmingProxy);
+        emit UpdateProxyInfo(_farmingProxy, _allocPoint, totalAllocPoint);
     }
 
     /// @notice Update the given proxy's BST allocation point. Can only be called by the owner.
@@ -1475,6 +1489,7 @@ contract BSTMinter is Ownable {
         uint256 _allocPoint,
         bool _withUpdate
     ) public onlyOwner {
+        require(_proxyAddress != address(0), "BSTMinter: no 0 address");
         if (_withUpdate) {
             massMint();
         }
@@ -1482,6 +1497,7 @@ contract BSTMinter is Ownable {
             .sub(proxyInfo[_proxyAddress].allocPoint)
             .add(_allocPoint);
         proxyInfo[_proxyAddress].allocPoint = _allocPoint;
+        emit UpdateProxyInfo(_proxyAddress, _allocPoint, totalAllocPoint);
     }
 
     function _phase(uint256 blockNumber) internal view returns (uint256) {
@@ -1573,7 +1589,12 @@ contract BSTMinter is Ownable {
 
     /// @notice Update dev address by the previous dev.
     function dev(address _devaddr) public onlyOwner {
+        require(
+            _devaddr != address(0),
+            "BSTMinter: dev address can't be 0 address"
+        );
         devaddr = _devaddr;
+        emit SetDevAddress(_devaddr);
     }
 
     function getTokenAddress() external view returns (address) {
