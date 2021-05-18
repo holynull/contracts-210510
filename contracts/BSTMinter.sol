@@ -7,6 +7,7 @@ import "./interfaces/IBEP20.sol";
 import "./interfaces/IBSTToken.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./BSTToken.sol";
 
 /// @title Implement BST's distrubution plan.
 contract BSTMinter is Ownable {

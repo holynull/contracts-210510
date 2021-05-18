@@ -581,6 +581,9 @@ pragma solidity ^0.6.0;
 
 interface IBSTToken is IBEP20 {
     function mint(address to, uint256 amount) external;
+
+    function transferMinterTo(address _minter) external;
+
 }
 
 // File: contracts/interfaces/IBSTMinter.sol
@@ -1262,24 +1265,12 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         bool available;
     }
     mapping(address => CoinInfo) public coins;
-    event SetPaymentFee(uint256 _fee);
-    event SetMinter(IBSTMinter _minter);
-    event SetDev(address _dev);
-    event SetToken(IBSTToken _token);
-    event AddCoins(address _coin, uint32 index);
-    event RemoveCoins(address _coin);
-    event SetPool(IBStablePool _pool);
+
     event Pay(
         address payToken,
         address receiptToken,
         address payer,
         address recipt
-    );
-
-    event WithdrawReward(
-        uint256 _quantity,
-        uint256 _totalQuantity,
-        uint256 _userReward
     );
 
     constructor(
@@ -1294,56 +1285,34 @@ contract PaymentFarmingProxy is BEP20, Ownable {
 
     function setPaymentFee(uint256 _fee) public onlyOwner {
         paymentFee = _fee;
-        emit SetPaymentFee(_fee);
     }
 
     function setMinter(IBSTMinter _minter) public onlyOwner {
-        require(
-            address(_minter) != address(0),
-            "PaymentFarmingProxy: can't be 0 address"
-        );
         bstMinter = _minter;
-        emit SetMinter(_minter);
     }
 
     function setDev(address _dev) public onlyOwner {
-        require(_dev != address(0), "PaymentFarmingProxy: can't be 0 address");
         devAddress = _dev;
-        emit SetDev(_dev);
     }
 
     function setToken(IBSTToken _token) public onlyOwner {
-        require(
-            address(_token) != address(0),
-            "PaymentFarmingProxy: can't be 0 address"
-        );
         token = _token;
-        emit SetToken(_token);
     }
 
     /// @notice Add coins supported.
     function addCoins(address _coin, uint32 index) public onlyOwner {
-        require(_coin != address(0), "PaymentFarmingProxy: can't be 0 address");
         require(!coins[_coin].available, "Payment: coins dumplicated.");
         coins[_coin] = CoinInfo({index: index, available: true});
-        emit AddCoins(_coin, index);
     }
 
     /// @notice Remove coins from supported.
     function removeCoins(address _coin) public onlyOwner {
-        require(_coin != address(0), "PaymentFarmingProxy: can't be 0 address");
         require(coins[_coin].available == true, "Payment: coin no exists.");
         coins[_coin].available = false;
-        emit RemoveCoins(_coin);
     }
 
     function setPool(IBStablePool _pool) public onlyOwner {
-        require(
-            address(_pool) != address(0),
-            "PaymentFarmingProxy: can't be 0 address"
-        );
         pool = _pool;
-        emit SetPool(_pool);
     }
 
     /// @notice Only pay, no need swap.
@@ -1419,16 +1388,14 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     function withdrawReward() public {
         UserInfo storage user = userInfo[msg.sender];
         uint256 _quantity = user.quantity;
-        uint256 _totalQuantity = totalQuantity;
         require(user.quantity > 0, "Payment: no payment quantity.");
         bstMinter.mint(address(this), 1, 1);
         uint256 userReward =
-            token.balanceOf(address(this)).mul(_quantity).div(_totalQuantity);
+            token.balanceOf(address(this)).mul(_quantity).div(totalQuantity);
         user.quantity = 0;
         user.blockNumber = block.number;
         TransferHelper.safeTransfer(address(token), msg.sender, userReward);
         totalQuantity = totalQuantity.sub(_quantity);
-        emit WithdrawReward(_quantity, _totalQuantity, userReward);
     }
 
     /// @notice Get rewards from users in the current pool

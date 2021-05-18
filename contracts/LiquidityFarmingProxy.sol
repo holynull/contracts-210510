@@ -9,6 +9,7 @@ import "./interfaces/IBSTToken.sol";
 import "./lib/SafeBEP20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./BSTToken.sol";
 
 /// @title Implement liquitidy farming.
 contract LiquidityFarmingProxy is Ownable {

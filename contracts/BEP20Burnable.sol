@@ -2,6 +2,7 @@
 
 pragma solidity ^0.6.0;
 
+import "@openzeppelin/contracts/GSN/Context.sol";
 import "./BEP20.sol";
 
 /**

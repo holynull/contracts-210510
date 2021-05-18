@@ -664,6 +664,9 @@ pragma solidity ^0.6.0;
 
 interface IBSTToken is IBEP20 {
     function mint(address to, uint256 amount) external;
+
+    function transferMinterTo(address _minter) external;
+
 }
 
 // File: contracts/interfaces/IBSTMinter.sol
@@ -1493,7 +1496,6 @@ contract BSTToken is DelegateBEP20, Ownable {
         address[] memory investors
     ) public BEP20("BStable Token", "BST") {
         require(investors.length == 10, "only have 10 investor address");
-        require(owner != minter, "BSTToken: owner can't be minter.");
         transferOwnership(owner);
         minter = minter_;
         for (uint256 i = 0; i < 10; i++) {
@@ -1501,13 +1503,15 @@ contract BSTToken is DelegateBEP20, Ownable {
         }
     }
 
-    /// @notice Creates `_amount` token to `_to`. 
+    /// @notice Creates `_amount` token to `_to`. Must only be called by the owner .
     function mint(address _to, uint256 _amount) public {
         require(msg.sender == minter, "BSTToken:only minter.");
-        require(_to != address(0), "BSTToken: no 0 address");
         _mint(_to, _amount);
     }
-    
+
+    function transferMinterTo(address to) public onlyOwner {
+        minter = to;
+    }
 }
 
 // File: contracts/LiquidityFarmingProxy.sol
@@ -1556,37 +1560,13 @@ contract LiquidityFarmingProxy is Ownable {
         uint256 indexed pid,
         uint256 amount
     );
-    event SetMinter(address _minter);
-    event AddPool(address _poolAddress, uint256 _allocPoint);
-    event SetPool(uint256 _pid, uint256 _allocPoint);
-    event UpdatePool(
-        uint256 _pid,
-        uint256 accTokenPerShare,
-        uint256 _tokenReward
-    );
-    event CalculatePending(
-        uint256 _pid,
-        uint256 _amount,
-        uint256 rewardDebt,
-        uint256 accTokenPerShare
-    );
-    event SetToken(address _token);
 
     constructor(address ownerAddress) public {
-        require(
-            ownerAddress != address(0),
-            "LiquidityFarmingProxy: no 0 address"
-        );
         transferOwnership(ownerAddress);
     }
 
     function setMinter(IBSTMinter _minter) public onlyOwner {
-        require(
-            address(_minter) != address(0),
-            "LiquidityFarmingProxy: no 0 address"
-        );
         bstMinter = _minter;
-        emit SetMinter(address(_minter));
     }
 
     function poolLength() external view returns (uint256) {
@@ -1599,10 +1579,6 @@ contract LiquidityFarmingProxy is Ownable {
         IBEP20 _lpToken,
         bool _withUpdate
     ) public onlyOwner {
-        require(
-            address(_lpToken) != address(0),
-            "LiquidityFarmingProxy: no 0 address"
-        );
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -1619,7 +1595,6 @@ contract LiquidityFarmingProxy is Ownable {
                 accTokenPerShare: 0
             })
         );
-        emit AddPool(address(_lpToken), _allocPoint);
     }
 
     /// @notice Update the given pool's BST allocation point. Can only be called by the owner.
@@ -1635,7 +1610,6 @@ contract LiquidityFarmingProxy is Ownable {
             _allocPoint
         );
         poolInfo[_pid].allocPoint = _allocPoint;
-        emit SetPool(_pid, _allocPoint);
     }
 
     /// @notice View function to see pending BSTs on frontend.
@@ -1690,7 +1664,6 @@ contract LiquidityFarmingProxy is Ownable {
             tokenReward.mul(1e12).div(lpSupply)
         );
         pool.lastRewardBlock = block.number;
-        emit UpdatePool(_pid, pool.accTokenPerShare, tokenReward);
     }
 
     /// @notice Deposit LP tokens to BStableProxyV2 for BST allocation.
@@ -1703,12 +1676,6 @@ contract LiquidityFarmingProxy is Ownable {
                 user.amount.mul(pool.accTokenPerShare).div(1e12).sub(
                     user.rewardDebt
                 );
-            emit CalculatePending(
-                _pid,
-                user.amount,
-                user.rewardDebt,
-                pool.accTokenPerShare
-            );
             safeTokenTransfer(msg.sender, pending);
         }
         pool.lpToken.safeTransferFrom(
@@ -1731,12 +1698,6 @@ contract LiquidityFarmingProxy is Ownable {
             user.amount.mul(pool.accTokenPerShare).div(1e12).sub(
                 user.rewardDebt
             );
-        emit CalculatePending(
-            _pid,
-            user.amount,
-            user.rewardDebt,
-            pool.accTokenPerShare
-        );
         safeTokenTransfer(msg.sender, pending);
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e12);
@@ -1756,7 +1717,6 @@ contract LiquidityFarmingProxy is Ownable {
 
     /// @notice Safe token transfer function, just in case if rounding error causes pool to not have enough BSTs.
     function safeTokenTransfer(address _to, uint256 _amount) internal {
-        require(_to != address(0), "LiquidityFarmingProxy: no 0 address");
         uint256 tokenBal = token.balanceOf(address(this));
         if (_amount > tokenBal) {
             token.transfer(_to, tokenBal);
@@ -1766,12 +1726,7 @@ contract LiquidityFarmingProxy is Ownable {
     }
 
     function setToken(IBSTToken _token) external onlyOwner {
-        require(
-            address(_token) != address(0),
-            "LiquidityFarmingProxy: no 0 address"
-        );
         token = _token;
-        emit SetToken(address(_token));
     }
 
     function getTokenAddress() external view returns (address) {
