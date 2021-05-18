@@ -107,6 +107,7 @@ module.exports = {
             network_id: 56,
             chain_id: 56,
             gas: 30000000,
+            networkCheckTimeout:86400000
         },
         _test_bsc: {
             provider: () => new HDWalletProvider(mnemonic, "https://data-seed-prebsc-1-s2.binance.org:8545/"),
@@ -124,9 +125,10 @@ module.exports = {
             chain_id: 97,
             // gas: 30000000,
             // confirmations: 2,
-            // timeoutBlocks: 2000,
+            timeoutBlocks: 2000,
             // skipDryRun: true,
             // gasPrice: 20000000000 // 20 gwei
+            networkCheckTimeout:86400000
         },
         heco_test: {
             provider: () => new HDWalletProvider(mnemonic, "https://http-testnet.hecochain.com"),

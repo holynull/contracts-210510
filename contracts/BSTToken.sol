@@ -2,7 +2,6 @@
 
 pragma solidity ^0.6.0;
 
-import "./BEP20Burnable.sol";
 import "./DelegateBEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 

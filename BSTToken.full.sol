@@ -31,76 +31,6 @@ abstract contract Context {
 
 pragma solidity >=0.6.0 <0.8.0;
 
-// File: @openzeppelin/contracts/access/Ownable.sol
-
-// SPDX-License-Identifier: MIT
-
-pragma solidity >=0.6.0 <0.8.0;
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-abstract contract Ownable is Context {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    constructor () internal {
-        address msgSender = _msgSender();
-        _owner = msgSender;
-        emit OwnershipTransferred(address(0), msgSender);
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-        _;
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions anymore. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby removing any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        emit OwnershipTransferred(_owner, address(0));
-        _owner = address(0);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
-}
-
 // File: contracts/interfaces/IBEP20.sol
 
 pragma solidity ^0.6.0;
@@ -610,7 +540,6 @@ pragma solidity ^0.6.0;
 
 
 
-
 /**
  * @dev Implementation of the {IBEP20} interface.
  *
@@ -981,7 +910,6 @@ contract BEP20 is Context, IBEP20 {
 pragma solidity ^0.6.0;
 
 
-
 /**
  * @dev Extension of {BEP20} that allows token holders to destroy both their own
  * tokens and those that they have an allowance for, in a way that can be
@@ -1256,12 +1184,81 @@ abstract contract DelegateBEP20 is BEP20Burnable {
 
 }
 
+// File: @openzeppelin/contracts/access/Ownable.sol
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    constructor () internal {
+        address msgSender = _msgSender();
+        _owner = msgSender;
+        emit OwnershipTransferred(address(0), msgSender);
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        emit OwnershipTransferred(_owner, address(0));
+        _owner = address(0);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        emit OwnershipTransferred(_owner, newOwner);
+        _owner = newOwner;
+    }
+}
+
 // File: contracts/BSTToken.sol
 
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.6.0;
-
 
 
 
@@ -1277,6 +1274,7 @@ contract BSTToken is DelegateBEP20, Ownable {
         address[] memory investors
     ) public BEP20("BStable Token", "BST") {
         require(investors.length == 10, "only have 10 investor address");
+        require(owner != minter, "BSTToken: owner can't be minter.");
         transferOwnership(owner);
         minter = minter_;
         for (uint256 i = 0; i < 10; i++) {
@@ -1284,13 +1282,11 @@ contract BSTToken is DelegateBEP20, Ownable {
         }
     }
 
-    /// @notice Creates `_amount` token to `_to`. Must only be called by the owner .
+    /// @notice Creates `_amount` token to `_to`. 
     function mint(address _to, uint256 _amount) public {
         require(msg.sender == minter, "BSTToken:only minter.");
+        require(_to != address(0), "BSTToken: no 0 address");
         _mint(_to, _amount);
     }
-
-    function transferMinterTo(address to) public onlyOwner {
-        minter = to;
-    }
+    
 }
