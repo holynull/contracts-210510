@@ -102,11 +102,11 @@ module.exports = {
             skipDryRun: true,    // Skip dry run before migrations? (default: false for public nets )
             gasPrice: 7000000000  // 7 gwei (in wei) (default: 100 gwei)
         },
-        bsc_main: {
+        bsc_mainnet: {
             provider: () => new HDWalletProvider(mnemonic, "https://bsc-dataseed1.defibit.io/"),
             network_id: 56,
             chain_id: 56,
-            gas: 30000000,
+            // gas: 30000000,
         },
         _test_bsc: {
             provider: () => new HDWalletProvider(mnemonic, "https://data-seed-prebsc-1-s2.binance.org:8545/"),
@@ -118,7 +118,7 @@ module.exports = {
             // skipDryRun: true,
             // gasPrice: 1800000000
         },
-        bsctestnet: {
+        bsc_testnet: {
             provider: () => new HDWalletProvider(mnemonic, "https://data-seed-prebsc-2-s2.binance.org:8545/"),
             network_id: 97,
             chain_id: 97,

@@ -12,5 +12,7 @@ module.exports = function (deployer, network, accounts) {
     pArr.push(deployer.deploy(TokenUSDT));
     pArr.push(deployer.deploy(TokenUSDC));
     pArr.push(deployer.deploy(TokenQUSD));
-    return Promise.all(pArr);
+    return Promise.all(pArr).catch(e=>{
+        console.error(e);
+    });
 };

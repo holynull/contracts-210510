@@ -41,6 +41,7 @@ module.exports = {
         pool2: '0x2552c1801d9891Fbf56Ea5Cf5AC61089a1D1c1d8',
         owner: '0xB0d88027F5dEd975fF6Df7A62952033D67Df277f',
         dev: '0x13B9d7375b134d0903f809505d41A6483c39F759',
+        huahua: '0x25B101DDcf1Fd055a5D7548d0AdE1eAfA128cCd0',
         investors: [
             '0x13B9d7375b134d0903f809505d41A6483c39F759',
             '0x4E9F49BE3feD5833C0A8e401fcbda76c38DA9b89',
@@ -75,6 +76,7 @@ module.exports = {
         pool2: '0x27f545300f7b93c1c0184979762622db043b0805',
         owner: '0xB0d88027F5dEd975fF6Df7A62952033D67Df277f',
         dev: '', // todo: bst dev
+        huahua: '0xcc55Fad9588e621E9F52f5b90C45262f8155F112',
         investors: [ // todo:investor
             '',
             '',

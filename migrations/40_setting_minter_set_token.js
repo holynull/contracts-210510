@@ -8,5 +8,7 @@ module.exports = function (deployer, network, accounts) {
         return BSTToken.deployed().then(bst => {
             return minter.setToken(bst.address);
         });
+    }).catch(e=>{
+        console.error(e);
     });
 };

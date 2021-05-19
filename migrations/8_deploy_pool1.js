@@ -27,6 +27,8 @@ module.exports = function (deployer, network, accounts) {
             console.log('constructor[5]:' + adminFee);
             console.log('constructor[6]:' + accounts[0]);
         });
+    }).catch(e=>{
+        console.error(e);
     });
 
 };

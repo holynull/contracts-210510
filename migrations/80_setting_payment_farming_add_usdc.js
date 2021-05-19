@@ -4,7 +4,7 @@ const data = require('./conf');
 
 module.exports = function (deployer, network, accounts) {
     let config = data[deployer.network_id];
-    TokenUSDC.deployed().then(usdc => {
+    return TokenUSDC.deployed().then(usdc => {
         return PaymentFarmingProxy.deployed().then(payment => {
             return payment.addCoins(usdc.address, 0);
         });

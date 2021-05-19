@@ -7,6 +7,8 @@ module.exports = function (deployer, network, accounts) {
         return PaymentFarmingProxy.deployed().then(payment => {
             return payment.setMinter(minter.address);
         });
+    }).catch(e=>{
+        console.error(e);
     });
 
 };

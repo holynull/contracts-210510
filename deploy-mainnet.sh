@@ -1,1 +1,1 @@
-truffle migrate --f=10 --network=bsc_main
+truffle migrate --f=10 --network=bsc_mainnet
