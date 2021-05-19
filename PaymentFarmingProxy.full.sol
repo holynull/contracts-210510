@@ -826,7 +826,6 @@ pragma solidity ^0.6.0;
 
 
 
-
 /**
  * @dev Implementation of the {IBEP20} interface.
  *
