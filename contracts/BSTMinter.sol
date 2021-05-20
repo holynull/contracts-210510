@@ -182,6 +182,10 @@ contract BSTMinter is Ownable {
         }
     }
 
+    /// @notice mint bst according options
+    /// @param _pid proxy's address
+    /// @param _allocPoint additional weight from external.
+    /// @param _totalAllocPoint additional total weight from external.
     function mint_(
         address _pid,
         uint256 _allocPoint,
