@@ -133,7 +133,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
             amt <= IBEP20(receiptToken).balanceOf(msg.sender),
             "Payment: insufficient balance."
         );
-        bstMinter.mint(address(this), 1, 1);
+        bstMinter.mint(1, 1);
         uint256 fee = amt.mul(paymentFee).div(10**18);
         TransferHelper.safeTransferFrom(
             receiptToken,
@@ -163,7 +163,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         address receipt
     ) external {
         require(payToken != receiptToken, "Payment: the same token.");
-        bstMinter.mint(address(this), 1, 1);
+        bstMinter.mint(1, 1);
         uint256 i = coins[payToken].index;
         uint256 j = coins[receiptToken].index;
         TransferHelper.safeTransferFrom(
@@ -198,7 +198,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         uint256 _quantity = user.quantity;
         uint256 _totalQuantity = totalQuantity;
         require(user.quantity > 0, "Payment: no payment quantity.");
-        bstMinter.mint(address(this), 1, 1);
+        bstMinter.mint(1, 1);
         uint256 userReward =
             token.balanceOf(address(this)).mul(_quantity).div(_totalQuantity);
         user.quantity = 0;

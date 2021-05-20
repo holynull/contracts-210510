@@ -165,7 +165,7 @@ contract LiquidityFarmingProxy is Ownable {
             return;
         }
         uint256 tokenReward =
-            bstMinter.mint(address(this), pool.allocPoint, totalAllocPoint);
+            bstMinter.mint(pool.allocPoint, totalAllocPoint);
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;

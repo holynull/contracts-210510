@@ -32,7 +32,6 @@ interface IBSTMinter {
     function massMint() external;
 
     function mint(
-        address _pid,
         uint256 _allocPoint,
         uint256 _totalPoints
     ) external returns (uint256);

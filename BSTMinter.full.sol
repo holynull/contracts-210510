@@ -858,7 +858,7 @@ contract BSTMinter is Ownable {
     }
 
     /// @notice Update reward vairables for all proxys. Be careful of gas spending!
-    function massMint() public {
+    function massMint() public onlyOwner {
         uint256 length = proxyAddresses.length;
         for (uint256 pid = 0; pid < length; pid++) {
             mint(proxyAddresses[pid], 1, 1);
@@ -874,7 +874,11 @@ contract BSTMinter is Ownable {
         uint256 _allocPoint,
         uint256 _totalAllocPoint
     ) public returns (uint256) {
-        ProxyInfo storage proxy = proxyInfo[_pid];
+        ProxyInfo storage proxy = proxyInfo[msg.sender];
+        require(
+            msg.sender == proxy.farmingProxy || msg.sender == address(this),
+            "BSTMinter: only farmingProxy"
+        );
         if (block.number <= proxy.lastRewardBlock) {
             return 0;
         }

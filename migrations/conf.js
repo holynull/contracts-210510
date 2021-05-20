@@ -5,7 +5,7 @@ module.exports = {
         usdt: '0x3be13D2E06B4422e3C155f397615A8983b9aE5aE',
         pool1: '0x7B095E6eaA969F9f840Ccacb9DE89516DE2FC52E',
         pool2: '0x2552c1801d9891Fbf56Ea5Cf5AC61089a1D1c1d8',
-        owner: '0xB0d88027F5dEd975fF6Df7A62952033D67Df277f',
+        owner: '0x13B9d7375b134d0903f809505d41A6483c39F759',
         dev: '0xB0d88027F5dEd975fF6Df7A62952033D67Df277f',
         investors: [
             '0x13B9d7375b134d0903f809505d41A6483c39F759',
@@ -19,8 +19,8 @@ module.exports = {
             '0xA04c97c1c00300CcfA230a1D1b4E8Dc241861A3e',
             '0x76EFD6e0A9322a7b9dCA70a1972453814A5687c4'
         ],
-        dDay: [2021, 4, 17],
-        hours: [16, 14, 0, 0],
+        dDay: [2021, 4, 20],
+        hours: [11, 21, 0, 0],
         pool3: {
             name: "BStable Pool (USDC / BUSD / USDT)",
             symbol: "BSLP-03",
