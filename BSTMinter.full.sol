@@ -861,7 +861,7 @@ contract BSTMinter is Ownable {
     function massMint() public onlyOwner {
         uint256 length = proxyAddresses.length;
         for (uint256 pid = 0; pid < length; pid++) {
-            mint(proxyAddresses[pid], 1, 1);
+            mint_(proxyAddresses[pid], 1, 1);
         }
     }
 
@@ -869,16 +869,12 @@ contract BSTMinter is Ownable {
     /// @param _pid proxy's address
     /// @param _allocPoint additional weight from external.
     /// @param _totalAllocPoint additional total weight from external.
-    function mint(
+    function mint_(
         address _pid,
         uint256 _allocPoint,
         uint256 _totalAllocPoint
-    ) public returns (uint256) {
-        ProxyInfo storage proxy = proxyInfo[msg.sender];
-        require(
-            msg.sender == proxy.farmingProxy || msg.sender == address(this),
-            "BSTMinter: only farmingProxy"
-        );
+    ) internal returns (uint256) {
+        ProxyInfo storage proxy = proxyInfo[_pid];
         if (block.number <= proxy.lastRewardBlock) {
             return 0;
         }
@@ -888,6 +884,21 @@ contract BSTMinter is Ownable {
         bstToken.mint(proxy.farmingProxy, tokenReward);
         proxy.lastRewardBlock = block.number;
         return tokenReward;
+    }
+
+    /// @notice mint bst according options
+    /// @param _allocPoint additional weight from external.
+    /// @param _totalAllocPoint additional total weight from external.
+    function mint(uint256 _allocPoint, uint256 _totalAllocPoint)
+        external
+        returns (uint256)
+    {
+        ProxyInfo storage proxy = proxyInfo[msg.sender];
+        require(
+            msg.sender == proxy.farmingProxy,
+            "BSTMinter: only farmingProxy"
+        );
+        return mint_(msg.sender, _allocPoint, _totalAllocPoint);
     }
 
     /// @notice Update dev address by the previous dev.

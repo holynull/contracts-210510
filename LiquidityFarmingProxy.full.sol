@@ -701,7 +701,6 @@ interface IBSTMinter {
     function massMint() external;
 
     function mint(
-        address _pid,
         uint256 _allocPoint,
         uint256 _totalPoints
     ) external returns (uint256);
@@ -978,7 +977,7 @@ contract LiquidityFarmingProxy is Ownable {
             return;
         }
         uint256 tokenReward =
-            bstMinter.mint(address(this), pool.allocPoint, totalAllocPoint);
+            bstMinter.mint(pool.allocPoint, totalAllocPoint);
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
