@@ -26,6 +26,8 @@ contract BSTMinter is Ownable {
     uint256 public tokenPerBlock = 6_500_000_000_000_000_000; // 6.5 bst/block
     /// @notice Info of each proxy.
     mapping(address => ProxyInfo) public proxyInfo;
+    /// @notice Save proxy address whether exists.
+    mapping(address => bool) public proxyTokens;
     // @notice Save proxy's address in array.
     address[] public proxyAddresses;
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all proxys.
@@ -81,6 +83,11 @@ contract BSTMinter is Ownable {
         bool _withUpdate
     ) public onlyOwner {
         require(_farmingProxy != address(0), "BSTMinter: no 0 address");
+        require(
+            !proxyTokens[_farmingProxy],
+            "BSTMinter: _farmingProxy already exist"
+        );
+        proxyTokens[_farmingProxy] = true;
         if (_withUpdate) {
             massMint();
         }
@@ -146,6 +153,7 @@ contract BSTMinter is Ownable {
         uint256 _bstPerBlock = tokenPerBlock;
         uint256 i = 1;
         while (i <= _lastPhase) {
+            // calculate out lastPhase _bstPerBlock
             _bstPerBlock = _bstPerBlock.mul(10**18).div(HALVING_COEFFICIENT);
             i++;
         }
@@ -154,7 +162,6 @@ contract BSTMinter is Ownable {
             _lastPhase++;
             // Get the last block of the previous cycle
             uint256 r = _lastPhase.mul(halvingPeriod).add(startBlock);
-            _bstPerBlock = _bstPerBlock.mul(10**18).div(HALVING_COEFFICIENT);
             // Get rewards from previous periods
             blockReward = blockReward.add(
                 r
@@ -163,6 +170,7 @@ contract BSTMinter is Ownable {
                     .mul(proxy.allocPoint)
                     .div(totalAllocPoint)
             );
+            _bstPerBlock = _bstPerBlock.mul(10**18).div(HALVING_COEFFICIENT);
             _lastRewardBlock = r;
         }
         blockReward = blockReward.add(

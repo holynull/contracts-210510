@@ -28,6 +28,8 @@ contract LiquidityFarmingProxy is Ownable {
     IBSTToken public token;
     /// @notice Info of each pool.
     PoolInfo[] public poolInfo;
+    /// @notice Save lp tokens whether exists.
+    mapping(address => bool) public lpTokens;
     /// @notice Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     /// @notice Total allocation poitns. Must be the sum of all allocation points in all pools.
@@ -89,6 +91,11 @@ contract LiquidityFarmingProxy is Ownable {
             address(_lpToken) != address(0),
             "LiquidityFarmingProxy: no 0 address"
         );
+        require(
+            !lpTokens[address(_lpToken)],
+            "LiqudityFarmingProxy: _lpToken already exist"
+        );
+        lpTokens[address(_lpToken)] = true;
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -144,8 +151,6 @@ contract LiquidityFarmingProxy is Ownable {
                     ? accTokenPerShare
                     : tokenReward.mul(1e12).div(lpSupply);
             accTokenPerShare = accTokenPerShare.add(nAccTokenPerShare);
-        } else {
-            accTokenPerShare = accTokenPerShare.add(accTokenPerShare);
         }
         return user.amount.mul(accTokenPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -164,8 +169,7 @@ contract LiquidityFarmingProxy is Ownable {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
-        uint256 tokenReward =
-            bstMinter.mint(pool.allocPoint, totalAllocPoint);
+        uint256 tokenReward = bstMinter.mint(pool.allocPoint, totalAllocPoint);
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
@@ -197,13 +201,15 @@ contract LiquidityFarmingProxy is Ownable {
             );
             safeTokenTransfer(msg.sender, pending);
         }
-        pool.lpToken.safeTransferFrom(
-            address(msg.sender),
-            address(this),
-            _amount
-        );
         user.amount = user.amount.add(_amount);
         user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e12);
+        if (_amount > 0) {
+            pool.lpToken.safeTransferFrom(
+                address(msg.sender),
+                address(this),
+                _amount
+            );
+        }
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -223,10 +229,14 @@ contract LiquidityFarmingProxy is Ownable {
             user.rewardDebt,
             pool.accTokenPerShare
         );
-        safeTokenTransfer(msg.sender, pending);
+        if (pending > 0) {
+            safeTokenTransfer(msg.sender, pending);
+        }
         user.amount = user.amount.sub(_amount);
         user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e12);
-        pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        if (_amount > 0) {
+            pool.lpToken.safeTransfer(address(msg.sender), _amount);
+        }
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
@@ -234,10 +244,11 @@ contract LiquidityFarmingProxy is Ownable {
     function emergencyWithdraw(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
-        pool.lpToken.safeTransfer(address(msg.sender), user.amount);
-        emit EmergencyWithdraw(msg.sender, _pid, user.amount);
+        uint256 amount_ = user.amount;
         user.amount = 0;
         user.rewardDebt = 0;
+        pool.lpToken.safeTransfer(address(msg.sender), amount_);
+        emit EmergencyWithdraw(msg.sender, _pid, amount_);
     }
 
     /// @notice Safe token transfer function, just in case if rounding error causes pool to not have enough BSTs.

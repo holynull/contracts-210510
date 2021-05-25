@@ -111,7 +111,6 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
     event WithdrawAdminFees();
     event RevertTransferOwnership();
     event RevertNewParameters();
-    
 
     constructor(
         string memory _name,
@@ -299,7 +298,7 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
         external
         nonReentrant
     {
-        require(is_killed != true, "is killed");
+        require(!is_killed, "is killed");
         uint256[] memory fees = new uint256[](coins.length);
         // _fee: uint256 = self.fee * coins.length / (4 * (coins.length - 1))
         uint256 _fee =
@@ -501,7 +500,7 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
         uint256 dx,
         uint256 min_dy
     ) external nonReentrant {
-        require(is_killed == false, "dev: is killed");
+        require(!is_killed, "dev: is killed");
 
         uint256[] memory xp = _xp_mem(balances);
 
@@ -587,7 +586,7 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
         uint256[] calldata amounts,
         uint256 max_burn_amount
     ) external nonReentrant {
-        require(is_killed == false, "is killed"); //not self.  # dev: is killed
+        require(!is_killed, "is killed"); //not self.  # dev: is killed
 
         require(totalSupply() != 0, "  # dev: zero total supply");
         // _fee: uint256 = self.fee * coins.length / (4 * (coins.length - 1))
@@ -763,7 +762,7 @@ contract BStablePool is BEP20, Ownable, ReentrancyGuard {
         uint256 min_amount
     ) external nonReentrant {
         // Remove _amount of liquidity all in a form of coin i
-        require(is_killed == false, " # dev: is killed");
+        require(!is_killed, " # dev: is killed");
         uint256 dy = 0;
         uint256 dy_fee = 0;
         (dy, dy_fee) = _calc_withdraw_one_coin(_token_amount, i);

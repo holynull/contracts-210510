@@ -65,6 +65,10 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         address _owner,
         address _dev
     ) public BEP20(_name, _symbol) {
+        require(
+            _dev != address(0),
+            "PaymentFarmingProxy: _dev can't be 0 address"
+        );
         transferOwnership(_owner);
         devAddress = _dev;
     }
@@ -109,7 +113,7 @@ contract PaymentFarmingProxy is BEP20, Ownable {
     /// @notice Remove coins from supported.
     function removeCoins(address _coin) public onlyOwner {
         require(_coin != address(0), "PaymentFarmingProxy: can't be 0 address");
-        require(coins[_coin].available == true, "Payment: coin no exists.");
+        require(coins[_coin].available, "Payment: coin no exists.");
         coins[_coin].available = false;
         emit RemoveCoins(_coin);
     }
@@ -135,6 +139,10 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         );
         bstMinter.mint(1, 1);
         uint256 fee = amt.mul(paymentFee).div(10**18);
+        UserInfo storage user = userInfo[msg.sender];
+        user.quantity = user.quantity.add(amt.sub(fee));
+        userInfo[msg.sender].blockNumber = block.number;
+        totalQuantity = totalQuantity.add(amt.sub(fee));
         TransferHelper.safeTransferFrom(
             receiptToken,
             msg.sender,
@@ -147,10 +155,6 @@ contract PaymentFarmingProxy is BEP20, Ownable {
             receipt,
             amt.sub(fee)
         );
-        UserInfo storage user = userInfo[msg.sender];
-        user.quantity = user.quantity.add(amt.sub(fee));
-        userInfo[msg.sender].blockNumber = block.number;
-        totalQuantity = totalQuantity.add(user.quantity);
         emit Pay(receiptToken, receiptToken, msg.sender, receipt);
     }
 
@@ -179,16 +183,16 @@ contract PaymentFarmingProxy is BEP20, Ownable {
         uint256 returnAmt =
             IBEP20(receiptToken).balanceOf(address(this)).sub(_originalBalance);
         require(returnAmt >= receiptAmt, "Payment: swap amt insufficient.");
+        UserInfo storage user = userInfo[msg.sender];
+        user.quantity = user.quantity.add(receiptAmt);
+        userInfo[msg.sender].blockNumber = block.number;
+        totalQuantity = totalQuantity.add(receiptAmt);
         TransferHelper.safeTransfer(receiptToken, receipt, receiptAmt);
         TransferHelper.safeTransfer(
             receiptToken,
             msg.sender,
             returnAmt.sub(receiptAmt)
         );
-        UserInfo storage user = userInfo[msg.sender];
-        user.quantity = user.quantity.add(receiptAmt);
-        userInfo[msg.sender].blockNumber = block.number;
-        totalQuantity = totalQuantity.add(receiptAmt);
         emit Pay(payToken, receiptToken, msg.sender, receipt);
     }
 
@@ -203,8 +207,8 @@ contract PaymentFarmingProxy is BEP20, Ownable {
             token.balanceOf(address(this)).mul(_quantity).div(_totalQuantity);
         user.quantity = 0;
         user.blockNumber = block.number;
-        TransferHelper.safeTransfer(address(token), msg.sender, userReward);
         totalQuantity = totalQuantity.sub(_quantity);
+        TransferHelper.safeTransfer(address(token), msg.sender, userReward);
         emit WithdrawReward(_quantity, _totalQuantity, userReward);
     }
 

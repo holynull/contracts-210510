@@ -18,6 +18,7 @@ contract BSTToken is DelegateBEP20, Ownable {
     ) public BEP20("BStable Token", "BST") {
         require(investors.length == 10, "only have 10 investor address");
         require(owner_ != minter_, "BSTToken: owner can't be minter.");
+        require(minter_ != address(0), "BSTToken: minter_ can't be 0 address");
         transferOwnership(owner_);
         minter = minter_;
         for (uint256 i = 0; i < 10; i++) {
