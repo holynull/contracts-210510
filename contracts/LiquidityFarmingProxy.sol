@@ -148,7 +148,7 @@ contract LiquidityFarmingProxy is Ownable {
                 ); // 0 is lp farming
             uint256 nAccTokenPerShare =
                 tokenReward == 0
-                    ? accTokenPerShare
+                    ? 0 
                     : tokenReward.mul(1e12).div(lpSupply);
             accTokenPerShare = accTokenPerShare.add(nAccTokenPerShare);
         }
